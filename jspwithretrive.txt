@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Form Example</title>
+
+</head>
+<body>
+
+    <form name="ABc" method="post" action="Database">
+       
+        <img src="logo.png" alt="logo" width="100" height="100">
+
+        <h1 class="iie">Indra Institute of Education</h1>
+        <h1 class="EF">Enquiry Form</h1>
+        
+        <input type="text" id="firstname" name="firstname" value="" placeholder="First Name">
+
+    
+        <input type="text" id="lastname" name="lastname" value="" placeholder="Last Name">
+
+
+        <input type="text" id="email" name="email" value="" placeholder="Email">
+   
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
+
+______________________________________________________________________________________________
+_____________________________________________________________________________________
+
+Database.java
+______________
+
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.sql.*;
+
+/**
+ *
+ * @author arawi
+ */
+public class Database extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+           
+            
+           String firstname = request.getParameter("firstname");
+           String lastname = request.getParameter("lastname");
+           String email = request.getParameter("email");
+           
+           try{
+               
+           Class.forName("com.mysql.jdbc.Driver");
+           Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/javadev","arawind","arawind");
+           
+           PreparedStatement ps = c.prepareStatement("insert into details values(?,?,?)");
+           
+           ps.setString(1,firstname);
+           ps.setString(2,lastname);
+           ps.setString(3,email);
+           
+           int res = ps.executeUpdate();
+           
+           if(res>0)
+           {
+               out.println("<h1>Data Added  Successfully</h1>");
+               response.sendRedirect("StudentData.jsp");
+            
+           }
+           
+           }
+           catch(Exception e)
+           {
+               e.printStackTrace(out);
+           }
+           
+        }
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}
+
+_____________________________________________________________________________________
+______________________________________________________________________________________
+
+StudentData.jsp  (retrive from dbase)
+
+<%-- 
+    Document   : StudentData
+    Created on : 20 Jan, 2025, 4:07:00 PM
+    Author     : arawind
+--%>
+<%@page import="java.sql.*"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>JSP Page</title>
+    </head>
+    <body>
+    <centre><h1>Student Record<h1></centre>
+                <table border="1" rules="all" cellspacing="25px" cellpadding="25px" align="center">
+                    <tr style="background-color: blue;color:white">
+                    <td><b>firstname</b></td>
+                    <td><b>lasstname</b></td>
+                    <td><b>email</b></td>
+                    </tr>
+                 
+                    
+                 <% 
+                     Class.forName("com.mysql.jdbc.Driver");
+                     Connection c = DriverManager.getConnection("jdbc:mysql://localhost:3306/javadev","arawind","arawind");
+                     Statement st = c.createStatement();
+                     ResultSet rs = st.executeQuery("select * from details");
+                     
+                     while(rs.next()){
+                         %>
+                         
+                         <tr>
+                             
+                            <td><%=rs.getString("FirstName")%></td>
+                            <td><%=rs.getString("LastName")%></td>
+                            <td><%=rs.getString("Email")%></td>
+
+                </tr>
+                   
+                     <%
+                     }
+                     %>
+                    
+                </table>
+    </body>
+</html>
+
+
+
+
+
